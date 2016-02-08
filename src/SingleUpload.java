@@ -108,7 +108,7 @@ public class SingleUpload {
 				.to("https://secure.nedjma.dz/sp/,DanaInfo=10.39.1.40+spqueryselftone.do?qryType=self&uploadType=1&approveType=2&status=1&language=4");
 		driver.navigate()
 				.to("https://secure.nedjma.dz/sp/,DanaInfo=10.39.1.40+uploadtone.screen");
-		
+
 		return false;
 
 	}
@@ -155,21 +155,33 @@ public class SingleUpload {
 			selectCat1(cat1);
 			selectCat2(cat2);
 			driver.findElementById("calimg1").click();
-			
-			String parentWindow= driver.getWindowHandle();
 
-			Set<String> allWindows = driver.getWindowHandles();
+			String parentWindow = driver.getWindowHandle();
+			Set<String> handles =  driver.getWindowHandles();
+			   for(String windowHandle  : handles)
+			       {
+			       if(!windowHandle.equals(parentWindow))
+			          {
+			          driver.switchTo().window(windowHandle);
+			          /*new Select(driver.findElement(By
+								.cssSelector("select.cpYearNavigation")))
+								.selectByVisibleText("2025");
+						
+						new Select(driver.findElement(By
+								.cssSelector("select.cpMonthNavigation")))
+								.selectByVisibleText("December");
+*/
+						/*((JavascriptExecutor) driver)
+								.executeScript("javascript:DanaDeferEval('window.opener.CP_tmpReturnFunction(2025,12,31);"
+										+ "window.opener.CP_hideCalendar(\'0\');')");
+*/
+			          driver.findElementByCssSelector("body > center:nth-child(2) > table:nth-child(2) > tbody:nth-child(1) > tr:nth-child(6) > td:nth-child(4) > a:nth-child(1)").click();
+			         driver.switchTo().window(parentWindow); //cntrl to parent window
+			          }
+			       }
+
 			
-			for(String curWindow : allWindows){
-			    driver.switchTo().window(curWindow);
-			}
-			
-			/*new Select(driver.findElement(By.cssSelector("select.cpYearNavigation"))).selectByVisibleText("2025");
-			new Select(driver.findElement(By.cssSelector("select.cpMonthNavigation"))).selectByVisibleText("December");*/
-			((JavascriptExecutor) driver)
-			.executeScript("javascript:DanaDeferEval('window.opener.CP_tmpReturnFunction(2025,12,31));window.opener.CP_hideCalendar(\'0\');')");
-			
-			driver.switchTo().window(parentWindow);
+			//driver.switchTo().window(parentWindow);
 
 		}
 
@@ -181,37 +193,33 @@ public class SingleUpload {
 		case DAM_ORIENTAL:
 			driver.findElementById("dir1list").click();
 
-			((JavascriptExecutor) driver)
-					.executeScript("selectItem(MainList,'"+DAM_ORIENTAL+"','"
-							+ ORIENTAL
-							+ "',fatherdirname,fatherdirindexlevel1, '0','')");
+			((JavascriptExecutor) driver).executeScript("selectItem(MainList,'"
+					+ DAM_ORIENTAL + "','" + ORIENTAL
+					+ "',fatherdirname,fatherdirindexlevel1, '0','')");
 			break;
 
 		case DAM_ISLAMIQUE:
 			driver.findElementById("dir1list").click();
 
-			((JavascriptExecutor) driver)
-					.executeScript("selectItem(MainList,'"+DAM_ISLAMIQUE+"','"
-							+ ISLAMIQUE
-							+ "',fatherdirname,fatherdirindexlevel1, '0','')");
+			((JavascriptExecutor) driver).executeScript("selectItem(MainList,'"
+					+ DAM_ISLAMIQUE + "','" + ISLAMIQUE
+					+ "',fatherdirname,fatherdirindexlevel1, '0','')");
 			break;
 
 		case DAM_ALGERIENNE:
 			driver.findElementById("dir1list").click();
 
-			((JavascriptExecutor) driver)
-					.executeScript("selectItem(MainList,'"+DAM_ALGERIENNE+"','"
-							+ ALGERIENNE
-							+ "',fatherdirname,fatherdirindexlevel1, '0','')");
+			((JavascriptExecutor) driver).executeScript("selectItem(MainList,'"
+					+ DAM_ALGERIENNE + "','" + ALGERIENNE
+					+ "',fatherdirname,fatherdirindexlevel1, '0','')");
 			break;
 
 		case DAM_OCCIDENTAL:
 			driver.findElementById("dir1list").click();
 
-			((JavascriptExecutor) driver)
-					.executeScript("selectItem(MainList,'"+DAM_OCCIDENTAL+"','"
-							+ OCCIDENTAL
-							+ "',fatherdirname,fatherdirindexlevel1, '0','')");
+			((JavascriptExecutor) driver).executeScript("selectItem(MainList,'"
+					+ DAM_OCCIDENTAL + "','" + OCCIDENTAL
+					+ "',fatherdirname,fatherdirindexlevel1, '0','')");
 			break;
 		default:
 			JOptionPane.showMessageDialog(null,
@@ -323,10 +331,12 @@ public class SingleUpload {
 				driver.switchTo().window(data);
 			}
 		} catch (Exception e) {
-			/*return Constants.KEYWORD_FAIL + "Unable to Switch Window"
-					+ e.getMessage();*/
+			/*
+			 * return Constants.KEYWORD_FAIL + "Unable to Switch Window" +
+			 * e.getMessage();
+			 */
 		}
-	//	return Constants.KEYWORD_PASS;
+		// return Constants.KEYWORD_PASS;
 	}
 
 }
