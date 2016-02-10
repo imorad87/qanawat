@@ -1,4 +1,5 @@
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -6,18 +7,27 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.stream.Stream;
 
 import javax.swing.JOptionPane;
+
+import net.sourceforge.htmlunit.corejs.javascript.tools.shell.JSConsole;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.ie.InternetExplorerDriver;
+import org.openqa.selenium.remote.CapabilityType;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class SingleUpload {
 
@@ -36,6 +46,8 @@ public class SingleUpload {
 	private static final int LIBANAIS = 40211;
 	private static final int VARIETE = 40197;
 	private static final int ANACHID = 40215;
+	private static final int CINEMA_TV = 402095;
+
 	// ------------- CAT 2 end -----------------//
 
 	// ------------- DAM CAT 1 start ------------------//
@@ -53,6 +65,7 @@ public class SingleUpload {
 	private static final String DAM_VARIETE = "Variété";
 	private static final String DAM_ANACHID = "Anachid";
 	private static final String DAM_EGYPTIEN = "Egyptien";
+	private static final String DAM_CINEMA_TV = "Cinéma & TV";
 	// ------------- DAM CAT 2 end ------------------//
 
 	private static FirefoxDriver driver;
@@ -65,14 +78,27 @@ public class SingleUpload {
 
 	public static void main(String[] args) throws IOException,
 			InterruptedException {
+
+		/*
+		 * System.setProperty("webdriver.ie.driver",
+		 * "C:\\Users\\islam.morad\\Desktop\\IEDriverServer.exe");
+		 * 
+		 * DesiredCapabilities cap = new DesiredCapabilities();
+		 * cap.setCapability(CapabilityType.ACCEPT_SSL_CERTS, true);
+		 * cap.setCapability(InternetExplorerDriver.INITIAL_BROWSER_URL,
+		 * "https://secure.nedjma.dz");
+		 */
 		driver = new FirefoxDriver();
+
 		login(URL, USER_NAME, PASSWORD);
 		upload();
 	}
 
-	private static boolean login(String url, String userName, String password) {
+	private static boolean login(String url, String userName, String password)
+			throws InterruptedException {
 		driver.get(url);
 
+		Thread.sleep(10000);
 		WebElement element = driver.findElement(By.name(USERNAME_TAGE));
 		element.sendKeys(userName);
 		element = driver.findElement(By.name(PASSWORD_TAGE));
@@ -113,11 +139,10 @@ public class SingleUpload {
 
 	}
 
-	private static void upload() throws InterruptedException,
-			FileNotFoundException {
+	private static void upload() throws InterruptedException, IOException {
 
 		BufferedReader bufferedReader = new BufferedReader(
-				new InputStreamReader(new FileInputStream("input2.csv"),
+				new InputStreamReader(new FileInputStream("input.csv"),
 						StandardCharsets.UTF_8));
 		Scanner s = new Scanner(bufferedReader);
 
@@ -137,7 +162,7 @@ public class SingleUpload {
 
 		while (s.hasNext()) {
 			String line = s.nextLine();
-			StringTokenizer to = new StringTokenizer(line, ">");
+			StringTokenizer to = new StringTokenizer(line, ",");
 
 			title = to.nextToken();
 			artist = to.nextToken();
@@ -148,42 +173,79 @@ public class SingleUpload {
 			path10 = to.nextToken();
 			path35 = to.nextToken();
 
-			driver.findElementById("toneName").sendKeys(title);
+			WebElement titleField = driver.findElementById("toneName");
+			JavascriptExecutor js = (JavascriptExecutor) driver;
+
+			js.executeScript("document.getElementById('toneName').setAttribute('maxlength', '10000')");
+			titleField.sendKeys(title);
+
 			driver.findElementById("singerName").sendKeys(artist);
-			driver.findElementById("movieName").sendKeys(album);
+			if ("NA".equalsIgnoreCase(album)) {
+				driver.findElementById("movieName").sendKeys(title);
+			} else {
+				driver.findElementById("movieName").sendKeys(album);
+			}
 			driver.findElementById("subCpId").sendKeys(ID);
+
 			selectCat1(cat1);
 			selectCat2(cat2);
-			driver.findElementById("calimg1").click();
+			setDate();
 
-			String parentWindow = driver.getWindowHandle();
-			Set<String> handles =  driver.getWindowHandles();
-			   for(String windowHandle  : handles)
-			       {
-			       if(!windowHandle.equals(parentWindow))
-			          {
-			          driver.switchTo().window(windowHandle);
-			          /*new Select(driver.findElement(By
-								.cssSelector("select.cpYearNavigation")))
-								.selectByVisibleText("2025");
-						
-						new Select(driver.findElement(By
-								.cssSelector("select.cpMonthNavigation")))
-								.selectByVisibleText("December");
-*/
-						/*((JavascriptExecutor) driver)
-								.executeScript("javascript:DanaDeferEval('window.opener.CP_tmpReturnFunction(2025,12,31);"
-										+ "window.opener.CP_hideCalendar(\'0\');')");
-*/
-			          driver.findElementByCssSelector("body > center:nth-child(2) > table:nth-child(2) > tbody:nth-child(1) > tr:nth-child(6) > td:nth-child(4) > a:nth-child(1)").click();
-			         driver.switchTo().window(parentWindow); //cntrl to parent window
-			          }
-			       }
+			selectSex(gender);
 
-			
-			//driver.switchTo().window(parentWindow);
+			driver.findElementById("toneInfo").sendKeys("Qanawat");
+
+			driver.findElementById("webToneFileName").sendKeys(path10);
+			driver.findElementById("aipToneFileName").sendKeys(path35);
+			driver.findElementById("ivrPromptToneFileName").sendKeys(path10);
+			driver.findElementByCssSelector(
+					"tr.sptr2:nth-child(16) > td:nth-child(2) > input:nth-child(1)")
+					.sendKeys(path10);
+			new Select(driver.findElement(By.id("relativelyTime")))
+					.selectByVisibleText("60");
+
+			FileInputStream in = new FileInputStream(
+					"C:\\Users\\islam.morad\\Desktop\\script.js");
+
+			Scanner ss = new Scanner(in);
+
+			StringBuilder x = new StringBuilder();
+			while (ss.hasNext()) {
+				String next = ss.nextLine();
+				x.append(next);
+				x.append(System.lineSeparator());
+
+			}
+
+			js.executeScript(x.toString());
+			System.out.println();
+			// ((JavascriptExecutor)
+			// driver).executeScript("javascript:checkForm()");
+
+			Thread.sleep(15000);
+
+			// driver.findElementByCssSelector("#okLink > a:nth-child(1)").click();
+
+			String text = new WebDriverWait(driver, 150)
+					.until(ExpectedConditions.visibilityOfElementLocated(By
+							.cssSelector(".sptd1"))).getText().trim();
+
+			if ("Success prompt : : :".equalsIgnoreCase(text)) {
+				r.append(artist + " " + title + "done");
+				r.append(System.lineSeparator());
+				r.flush();
+			} else {
+				r.append(artist + " " + title + "failed, " + text);
+				r.append(System.lineSeparator());
+				r.flush();
+			}
+
+			driver.navigate()
+					.to("https://secure.nedjma.dz/sp/,DanaInfo=10.39.1.40+uploadtone.screen");
 
 		}
+
+		r.close();
 
 	}
 
@@ -231,6 +293,13 @@ public class SingleUpload {
 		Thread.sleep(5000);
 
 		switch (cat2) {
+		case DAM_CINEMA_TV:
+			driver.findElementById("dir2list").click();
+
+			((JavascriptExecutor) driver)
+					.executeScript("selectChildItem(ChildList,'Cinéma et TV','40209',document.getElementById('categoryname1'),document.getElementById('fatherdirindex1'),1,1,'')");
+			break;
+
 		case DAM_ANACHID:
 			driver.findElementById("dir2list").click();
 
@@ -240,7 +309,6 @@ public class SingleUpload {
 							+ "','"
 							+ ANACHID
 							+ "',document.getElementById('categoryname1'),document.getElementById('fatherdirindex1'),1,1,'')");
-
 			break;
 
 		case DAM_DOUAA:
@@ -337,6 +405,56 @@ public class SingleUpload {
 			 */
 		}
 		// return Constants.KEYWORD_PASS;
+	}
+
+	private static void setDate() {
+		driver.findElementById("calimg1").click();
+
+		String parentWindow = driver.getWindowHandle();
+		Set<String> handles = driver.getWindowHandles();
+		for (String windowHandle : handles) {
+			if (!windowHandle.equals(parentWindow)) {
+				driver.switchTo().window(windowHandle);
+				new Select(driver.findElement(By
+						.cssSelector("select.cpYearNavigation")))
+						.selectByVisibleText("2025");
+
+				new Select(driver.findElement(By
+						.cssSelector("select.cpMonthNavigation")))
+						.selectByVisibleText("December");
+
+				((JavascriptExecutor) driver).executeScript(
+						"window.opener.CP_tmpReturnFunction(2025,12,31)",
+						"window.opener.CP_hideCalendar(\'0\')");
+
+				// driver.findElementByCssSelector("body > center:nth-child(2) > table:nth-child(2) > tbody:nth-child(1) > tr:nth-child(6) > td:nth-child(4) > a:nth-child(1)").click();
+
+				driver.switchTo().window(parentWindow); // cntrl to parent
+														// window
+			}
+		}
+	}
+
+	private static void selectSex(String sex) {
+		switch (sex) {
+		case "Male":
+			driver.findElementByCssSelector(
+					"tr.sptr2:nth-child(12) > td:nth-child(2) > input:nth-child(1)")
+					.click();
+
+			break;
+		case "Female":
+			driver.findElementByCssSelector(
+					"tr.sptr2:nth-child(12) > td:nth-child(2) > input:nth-child(2)")
+					.click();
+			break;
+
+		case "Group":
+			driver.findElementByCssSelector(
+					"tr.sptr2:nth-child(12) > td:nth-child(2) > input:nth-child(3)")
+					.click();
+			break;
+		}
 	}
 
 }
