@@ -32,49 +32,28 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 public class SingleUpload {
 
 	// ------------- CAT 1 start ------------------//
-	private static final int ORIENTAL = 36;
-	private static final int OCCIDENTAL = 33;
-	private static final int ALGERIENNE = 27;
-	private static final int ISLAMIQUE = 46;
+	private static final String BOLLYWOOD_SONGS = "selectItem(MainList,\"Bollywood Songs\",\"20021\",fatherdirname,fatherdirindex,\"\")";
+	private static final String WORLD_MUSIC = "selectItem(MainList,\"World Music\",\"20022\",fatherdirname,fatherdirindex,\"\")";
+	
 	// ------------- CAT 1 end -------------------//
 
-	// ------------- CAT 2 start ----------------//
-	private static final int KHALIDJI = 40212;
-	private static final int POP_ROCK = 40206;
-	private static final int EGYPTIEN = 40210;
-	private static final int DOUAA = 40214;
-	private static final int LIBANAIS = 40211;
-	private static final int VARIETE = 40197;
-	private static final int ANACHID = 40215;
-	private static final int CINEMA_TV = 402095;
-
-	// ------------- CAT 2 end -----------------//
+	
 
 	// ------------- DAM CAT 1 start ------------------//
-	private static final String DAM_ORIENTAL = "Oriental";
-	private static final String DAM_OCCIDENTAL = "Occidental";
-	private static final String DAM_ISLAMIQUE = "Islamique";
-	private static final String DAM_ALGERIENNE = "Algérienne";
+	private static final String DAM_WORLD_MUSIC = "World Music";
+	private static final String DAM_BOLLYWOOD_SONGS = "Bollywood Songs";
+
 	// ------------- DAM CAT 1 end ------------------//
 
-	// ------------- DAM CAT 2 start ------------------//
-	private static final String DAM_KHALIDJI = "Khalidji";
-	private static final String DAM_POP_ROCK = "POP/Rock";
-	private static final String DAM_DOUAA = "Douaa";
-	private static final String DAM_LIBANAIS = "Libanais";
-	private static final String DAM_VARIETE = "Variété";
-	private static final String DAM_ANACHID = "Anachid";
-	private static final String DAM_EGYPTIEN = "Egyptien";
-	private static final String DAM_CINEMA_TV = "Cinéma & TV";
-	// ------------- DAM CAT 2 end ------------------//
+	
 
 	private static FirefoxDriver driver;
 
-	public static final String URL = "https://secure.nedjma.dz";
+	public static final String URL = "http://61.5.195.27/sp";
 	public static final String USERNAME_TAGE = "username";
 	public static final String PASSWORD_TAGE = "password";
-	public static final String USER_NAME = "qanawat";
-	public static final String PASSWORD = "wta$123*nedjma";
+	public static final String USER_NAME = "601014";
+	public static final String PASSWORD = "4WcCQana4at";
 
 	public static void main(String[] args) throws IOException,
 			InterruptedException {
@@ -129,12 +108,8 @@ public class SingleUpload {
 		}
 
 		driver.navigate()
-				.to("https://secure.nedjma.dz/sp/,DanaInfo=10.39.1.40+tonemaintenanceindex.screen");
-		driver.navigate()
-				.to("https://secure.nedjma.dz/sp/,DanaInfo=10.39.1.40+spqueryselftone.do?qryType=self&uploadType=1&approveType=2&status=1&language=4");
-		driver.navigate()
-				.to("https://secure.nedjma.dz/sp/,DanaInfo=10.39.1.40+uploadtone.screen");
-
+				.to("http://61.5.195.27/sp/uploadtone.screen");
+		
 		return false;
 
 	}
@@ -151,14 +126,9 @@ public class SingleUpload {
 
 		String artist = null;
 		String title = null;
-		String album = null;
-		String ID = "600004";
-		String language = null;
 		String cat1 = null;
-		String cat2 = null;
 		String gender = null;
 		String path10 = null;
-		String path35 = null;
 
 		while (s.hasNext()) {
 			String line = s.nextLine();
@@ -166,38 +136,26 @@ public class SingleUpload {
 
 			title = to.nextToken();
 			artist = to.nextToken();
-			album = to.nextToken();
 			cat1 = to.nextToken();
-			cat2 = to.nextToken();
 			gender = to.nextToken();
 			path10 = to.nextToken();
-			path35 = to.nextToken();
+			
 
 			WebElement titleField = driver.findElementById("toneName");
-			JavascriptExecutor js = (JavascriptExecutor) driver;
-
-			js.executeScript("document.getElementById('toneName').setAttribute('maxlength', '10000')");
 			titleField.sendKeys(title);
 
 			driver.findElementById("singerName").sendKeys(artist);
-			if ("NA".equalsIgnoreCase(album)) {
-				driver.findElementById("movieName").sendKeys(title);
-			} else {
-				driver.findElementById("movieName").sendKeys(album);
-			}
-			driver.findElementById("subCpId").sendKeys(ID);
-
+			
+			selectSex(gender);
+			
 			selectCat1(cat1);
-			selectCat2(cat2);
+						
 			setDate();
 
-			selectSex(gender);
-
-			driver.findElementById("toneInfo").sendKeys("Qanawat");
-
 			driver.findElementById("webToneFileName").sendKeys(path10);
-			driver.findElementById("aipToneFileName").sendKeys(path35);
-			driver.findElementById("ivrPromptToneFileName").sendKeys(path10);
+			driver.findElementById("aipToneFileName").sendKeys(path10);
+			
+			/*driver.findElementById("ivrPromptToneFileName").sendKeys(path10);
 			driver.findElementByCssSelector(
 					"tr.sptr2:nth-child(16) > td:nth-child(2) > input:nth-child(1)")
 					.sendKeys(path10);
@@ -221,8 +179,9 @@ public class SingleUpload {
 			System.out.println();
 			// ((JavascriptExecutor)
 			// driver).executeScript("javascript:checkForm()");
-
-			Thread.sleep(15000);
+*/
+			driver.findElementByCssSelector("#okLink > a:nth-child(1)").click();
+			//Thread.sleep(15000);
 
 			// driver.findElementByCssSelector("#okLink > a:nth-child(1)").click();
 
@@ -241,7 +200,7 @@ public class SingleUpload {
 			}
 
 			driver.navigate()
-					.to("https://secure.nedjma.dz/sp/,DanaInfo=10.39.1.40+uploadtone.screen");
+					.to("http://61.5.195.27/sp/uploadtone.screen");
 
 		}
 
@@ -252,143 +211,26 @@ public class SingleUpload {
 	private static void selectCat1(String cat1) {
 
 		switch (cat1) {
-		case DAM_ORIENTAL:
-			driver.findElementById("dir1list").click();
+		case DAM_BOLLYWOOD_SONGS:
+			
 
-			((JavascriptExecutor) driver).executeScript("selectItem(MainList,'"
-					+ DAM_ORIENTAL + "','" + ORIENTAL
-					+ "',fatherdirname,fatherdirindexlevel1, '0','')");
+			((JavascriptExecutor) driver).executeScript(BOLLYWOOD_SONGS);
 			break;
 
-		case DAM_ISLAMIQUE:
-			driver.findElementById("dir1list").click();
+		case DAM_WORLD_MUSIC:
+			
 
-			((JavascriptExecutor) driver).executeScript("selectItem(MainList,'"
-					+ DAM_ISLAMIQUE + "','" + ISLAMIQUE
-					+ "',fatherdirname,fatherdirindexlevel1, '0','')");
+			((JavascriptExecutor) driver).executeScript(WORLD_MUSIC);
 			break;
 
-		case DAM_ALGERIENNE:
-			driver.findElementById("dir1list").click();
-
-			((JavascriptExecutor) driver).executeScript("selectItem(MainList,'"
-					+ DAM_ALGERIENNE + "','" + ALGERIENNE
-					+ "',fatherdirname,fatherdirindexlevel1, '0','')");
-			break;
-
-		case DAM_OCCIDENTAL:
-			driver.findElementById("dir1list").click();
-
-			((JavascriptExecutor) driver).executeScript("selectItem(MainList,'"
-					+ DAM_OCCIDENTAL + "','" + OCCIDENTAL
-					+ "',fatherdirname,fatherdirindexlevel1, '0','')");
-			break;
+		
 		default:
 			JOptionPane.showMessageDialog(null,
 					"Cat is not identified. Check cat spelling.");
 		}
 	}
 
-	private static void selectCat2(String cat2) throws InterruptedException {
-		Thread.sleep(5000);
-
-		switch (cat2) {
-		case DAM_CINEMA_TV:
-			driver.findElementById("dir2list").click();
-
-			((JavascriptExecutor) driver)
-					.executeScript("selectChildItem(ChildList,'Cinéma et TV','40209',document.getElementById('categoryname1'),document.getElementById('fatherdirindex1'),1,1,'')");
-			break;
-
-		case DAM_ANACHID:
-			driver.findElementById("dir2list").click();
-
-			((JavascriptExecutor) driver)
-					.executeScript("selectChildItem(ChildList,'"
-							+ DAM_ANACHID
-							+ "','"
-							+ ANACHID
-							+ "',document.getElementById('categoryname1'),document.getElementById('fatherdirindex1'),1,1,'')");
-			break;
-
-		case DAM_DOUAA:
-			driver.findElementById("dir2list").click();
-
-			((JavascriptExecutor) driver)
-					.executeScript("selectChildItem(ChildList,'"
-							+ DAM_DOUAA
-							+ "','"
-							+ DOUAA
-							+ "',document.getElementById('categoryname1'),document.getElementById('fatherdirindex1'),1,1,'')");
-
-			break;
-
-		case DAM_EGYPTIEN:
-			driver.findElementById("dir2list").click();
-
-			((JavascriptExecutor) driver)
-					.executeScript("selectChildItem(ChildList,'"
-							+ DAM_EGYPTIEN
-							+ "','"
-							+ EGYPTIEN
-							+ "',document.getElementById('categoryname1'),document.getElementById('fatherdirindex1'),1,1,'')");
-
-			break;
-
-		case DAM_KHALIDJI:
-			driver.findElementById("dir2list").click();
-
-			((JavascriptExecutor) driver)
-					.executeScript("selectChildItem(ChildList,'"
-							+ DAM_KHALIDJI
-							+ "','"
-							+ KHALIDJI
-							+ "',document.getElementById('categoryname1'),document.getElementById('fatherdirindex1'),1,1,'')");
-
-			break;
-
-		case DAM_LIBANAIS:
-			driver.findElementById("dir2list").click();
-
-			((JavascriptExecutor) driver)
-					.executeScript("selectChildItem(ChildList,'"
-							+ DAM_LIBANAIS
-							+ "','"
-							+ LIBANAIS
-							+ "',document.getElementById('categoryname1'),document.getElementById('fatherdirindex1'),1,1,'')");
-
-			break;
-
-		case DAM_VARIETE:
-			driver.findElementById("dir2list").click();
-
-			((JavascriptExecutor) driver)
-					.executeScript("selectChildItem(ChildList,'"
-							+ DAM_VARIETE
-							+ "','"
-							+ VARIETE
-							+ "',document.getElementById('categoryname1'),document.getElementById('fatherdirindex1'),1,1,'')");
-
-			break;
-
-		case DAM_POP_ROCK:
-			driver.findElementById("dir2list").click();
-
-			((JavascriptExecutor) driver)
-					.executeScript("selectChildItem(ChildList,'"
-							+ DAM_POP_ROCK
-							+ "','"
-							+ POP_ROCK
-							+ "',document.getElementById('categoryname1'),document.getElementById('fatherdirindex1'),1,1,'')");
-
-			break;
-
-		default:
-			JOptionPane.showMessageDialog(null,
-					"Cat 2 is not identified. Check cat spelling.");
-		}
-
-	}
+	
 
 	public static void switchwindow(String data) {
 		try {
@@ -408,7 +250,14 @@ public class SingleUpload {
 	}
 
 	private static void setDate() {
-		driver.findElementById("calimg1").click();
+		
+		
+		((JavascriptExecutor) driver).executeScript("dateField = document.getElementById('formattedtoneValidDay'); r = d.getAttribute('readonly'); r = false; dateField.value = '12/31/2020'; ");
+
+		
+		
+		
+		/*driver.findElementById("calimg1").click();
 
 		String parentWindow = driver.getWindowHandle();
 		Set<String> handles = driver.getWindowHandles();
@@ -432,26 +281,26 @@ public class SingleUpload {
 				driver.switchTo().window(parentWindow); // cntrl to parent
 														// window
 			}
-		}
+		}*/
 	}
 
 	private static void selectSex(String sex) {
 		switch (sex) {
 		case "Male":
 			driver.findElementByCssSelector(
-					"tr.sptr2:nth-child(12) > td:nth-child(2) > input:nth-child(1)")
+					"tr.sptr1:nth-child(7) > td:nth-child(2) > input:nth-child(1)")
 					.click();
 
 			break;
 		case "Female":
 			driver.findElementByCssSelector(
-					"tr.sptr2:nth-child(12) > td:nth-child(2) > input:nth-child(2)")
+					"tr.sptr1:nth-child(7) > td:nth-child(2) > input:nth-child(2)")
 					.click();
 			break;
 
 		case "Group":
 			driver.findElementByCssSelector(
-					"tr.sptr2:nth-child(12) > td:nth-child(2) > input:nth-child(3)")
+					"tr.sptr1:nth-child(7) > td:nth-child(2) > input:nth-child(3)")
 					.click();
 			break;
 		}
